@@ -12,67 +12,67 @@ app.use(express.static('public'));
 
 const db = mysql.createConnection({
     host: 'localhost',
-    user: 'gow_user',
-    password: '',
+    user: 'root',
+    password: 'root',
     database: 'gow_weapons'
 });
 const pool = mysql.createPool({
   host: 'localhost',
-  user: 'gow_user',
-  password: '',
+  user: 'root',
+  password: 'root',
   database: 'gow_weapons'
-});
+}).promise();
 
 db.connect(err => {
     if (err) throw err;
     console.log('Connected to database.');
 });
 
-// Full player + weapon creation route
-app.post('/create-full-player', async (req, res) => {
-    const { user_name, points, weapon } = req.body;
+app.post('/create-player', async (req, res) => {
+  const { user_name, points, id_weapon } = req.body;
+  try {
+    await db.promise().query('INSERT INTO Player (user_name, points, id_weapon) VALUES (?, ?, ?)', [user_name, points, id_weapon]);
+    res.send("Player created successfully!");
+  } catch (err) {
+    console.error("Error creating player:", err);
+    res.status(500).send("Error: " + err.message);
+  }
+});
 
-    const conn = db.promise(); // Promisified connection
-    try {
-        // Insert Material
-        const [mat] = await conn.query('INSERT INTO Material (path_material) VALUES (?)', [weapon.material]);
-        const id_material = mat.insertId;
+app.post('/create-weapon', async (req, res) => {
+  const weapon = req.body;
+  const conn = db.promise();
 
-        // Insert Sprite
-        const [spr] = await conn.query('INSERT INTO Sprite (path_sprite) VALUES (?)', [weapon.sprite]);
-        const id_sprite = spr.insertId;
+  try {
+    const [mat] = await conn.query('INSERT INTO Material (path_material) VALUES (?)', [weapon.material]);
+    const id_material = mat.insertId;
 
-        // Insert Skill
-        const [skl] = await conn.query('INSERT INTO Skill (skill_name, active) VALUES (?, ?)', [weapon.skill.skill_name, weapon.skill.active]);
-        const id_skill = skl.insertId;
+    const [spr] = await conn.query('INSERT INTO Sprite (path_sprite) VALUES (?)', [weapon.sprite]);
+    const id_sprite = spr.insertId;
 
-        // Insert Type_Weapon
-        const [typ] = await conn.query('INSERT INTO Type_Weapon (name_type_weapon) VALUES (?)', [weapon.type_weapon]);
-        const id_type_weapon = typ.insertId;
+    const [skl] = await conn.query('INSERT INTO Skill (skill_name, active) VALUES (?, ?)', [weapon.skill.skill_name, weapon.skill.active]);
+    const id_skill = skl.insertId;
 
-        // Insert Level
-        const [lvl] = await conn.query(
-            'INSERT INTO Level (multiplier_damage, multiplier_range, multiplier_cooldown) VALUES (?, ?, ?)',
-            [weapon.level.multiplier_damage, weapon.level.multiplier_range, weapon.level.multiplier_cooldown]
-        );
-        const id_level = lvl.insertId;
+    const [typ] = await conn.query('INSERT INTO Type_Weapon (name_type_weapon) VALUES (?)', [weapon.type_weapon]);
+    const id_type_weapon = typ.insertId;
 
-        // Insert Weapon
-        const [wpn] = await conn.query(
-            `INSERT INTO Weapon (name_weapon, damage, \`range\`, cooldown, id_sprite, id_material, id_skill, id_type_weapon, id_level)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [weapon.name_weapon, weapon.damage, weapon.range, weapon.cooldown, id_sprite, id_material, id_skill, id_type_weapon, id_level]
-        );
-        const id_weapon = wpn.insertId;
+    const [lvl] = await conn.query(
+      'INSERT INTO Level (multiplier_damage, multiplier_range, multiplier_cooldown) VALUES (?, ?, ?)',
+      [weapon.level.multiplier_damage, weapon.level.multiplier_range, weapon.level.multiplier_cooldown]
+    );
+    const id_level = lvl.insertId;
 
-        // Insert Player
-        await conn.query('INSERT INTO Player (user_name, points, id_weapon) VALUES (?, ?, ?)', [user_name, points, id_weapon]);
+    const [wpn] = await conn.query(
+      `INSERT INTO Weapon (name_weapon, damage, \`range\`, cooldown, id_sprite, id_material, id_skill, id_type_weapon, id_level)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [weapon.name_weapon, weapon.damage, weapon.range, weapon.cooldown, id_sprite, id_material, id_skill, id_type_weapon, id_level]
+    );
 
-        res.send('Player and weapon chain created successfully!');
-    } catch (err) {
-        console.error("Error creating full player:", err);
-        res.status(500).send("Error: " + err.message);
-    }
+    res.send("Weapon created successfully!");
+  } catch (err) {
+    console.error("Error creating weapon:", err);
+    res.status(500).send("Error: " + err.message);
+  }
 });
 
 app.get('/players', async (req, res) => {
@@ -94,6 +94,25 @@ app.get('/players', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send("Error retrieving player data");
+  }
+});
+
+app.get('/weapons', async (req, res) => {
+  try {
+    const [rows] = await db.promise().query('SELECT id_weapon, name_weapon FROM Weapon');
+    res.json(rows);
+  } catch (err) {
+    res.status(500).send("Error fetching weapons");
+  }
+});
+
+app.delete('/player/:user_name', async (req, res) => {
+  const { user_name } = req.params;
+  try {
+    await db.promise().query('DELETE FROM Player WHERE user_name = ?', [user_name]);
+    res.send("Player deleted successfully!");
+  } catch (err) {
+    res.status(500).send("Error deleting player");
   }
 });
 
