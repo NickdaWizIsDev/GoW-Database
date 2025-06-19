@@ -117,8 +117,10 @@ app.get('/players', async (req, res) => {
 // Get available weapons
 app.get('/weapons', async (req, res) => {
   try {
-    const [rows] = await getPool.query(`
-      SELECT w.id_weapon, w.name_weapon, s.path_sprite 
+    const [rows] = await getPool().query(`
+      SELECT 
+        w.id_weapon, w.name_weapon, s.path_sprite,
+        w.damage, w.range, w.cooldown
       FROM Weapon w
       JOIN Sprite s ON w.id_sprite = s.id_sprite
     `);
@@ -127,6 +129,7 @@ app.get('/weapons', async (req, res) => {
     res.status(500).send("Error fetching weapons");
   }
 });
+
 
 // Delete player by username
 app.delete('/player/:user_name', async (req, res) => {

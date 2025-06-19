@@ -20,6 +20,18 @@
         </div>
         <div class="mb-3">
             <label class="form-label">Select Weapon</label>
+            <div class="mb-3">
+                <label class="form-label">Sort Weapons By:</label>
+                <select id="sortWeapons" class="form-select">
+                    <option value="">None</option>
+                    <option value="damage-asc">Damage ↑</option>
+                    <option value="damage-desc">Damage ↓</option>
+                    <option value="range-asc">Range ↑</option>
+                    <option value="range-desc">Range ↓</option>
+                    <option value="cooldown-asc">Cooldown ↑</option>
+                    <option value="cooldown-desc">Cooldown ↓</option>
+                </select>
+            </div>
             <div id="weaponButtons" class="d-flex flex-wrap gap-2">
                 <!-- Buttons inserted dynamically here -->
             </div>

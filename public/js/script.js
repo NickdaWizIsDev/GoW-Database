@@ -20,6 +20,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const weaponButtons = $('weaponButtons');
   const playerCards = $('playerCards');
 
+  const sortDropdown = $('sortWeapons');
+  if (sortDropdown) {
+    sortDropdown.addEventListener('change', () => {
+      loadWeapons(sortDropdown.value);
+    });
+  }
+
+
   // ========= Login Page Logic ========= //
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
@@ -151,37 +159,47 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ========= Load Weapons ========= //
-async function loadWeapons() {
+async function loadWeapons(sortBy = '') {
   try {
     const response = await fetch('/weapons');
-    const weapons = await response.json();
+    let weapons = await response.json();
 
-    const container = document.getElementById('weaponButtons');
-    const selectedInput = document.getElementById('selectedWeaponId');
+    // Apply client-side sorting
+    if (sortBy) {
+      const [key, dir] = sortBy.split('-');
+      weapons.sort((a, b) => {
+        return dir === 'asc' ? a[key] - b[key] : b[key] - a[key];
+      });
+    }
+
+    const container = $('weaponButtons');
+    const selectedInput = $('selectedWeaponId');
     container.innerHTML = '';
     selectedInput.value = ''; // clear selection on reload
 
     weapons.forEach(w => {
       const btn = document.createElement('button');
       btn.type = 'button';
-      btn.className = 'btn btn-outline-dark d-flex align-items-center gap-2'; // flex for image + text
-      btn.style.color = white;
+      btn.className = 'btn btn-outline-dark d-flex align-items-center gap-2';
+      btn.style.color = 'dark';
       btn.dataset.weaponId = w.id_weapon;
 
-      // Create image element inside button
+      // Tooltip
+      btn.title = `Damage: ${w.damage}\nRange: ${w.range}\nCooldown: ${w.cooldown}`;
+      btn.setAttribute('data-bs-toggle', 'tooltip');
+      btn.setAttribute('data-bs-placement', 'top');
+
+
       const img = document.createElement('img');
-      img.src = w.path_sprite;  // assuming your /weapons endpoint returns path_sprite field now
+      img.src = '/assets/sprites/' + w.path_sprite;
       img.alt = w.name_weapon;
-      img.style.width = '40px';  // adjust size
+      img.style.width = '40px';
       img.style.height = '40px';
       img.style.objectFit = 'contain';
-      
+      img.onerror = () => img.remove();
       btn.appendChild(img);
 
-      // Add weapon name text after image
-      const textNode = document.createTextNode(w.name_weapon);
-      btn.appendChild(textNode);
-
+      btn.appendChild(document.createTextNode(w.name_weapon));
       btn.addEventListener('click', () => {
         [...container.children].forEach(b => b.classList.remove('btn-primary'));
         btn.classList.add('btn-primary');
@@ -190,11 +208,14 @@ async function loadWeapons() {
 
       container.appendChild(btn);
     });
+
+  const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+  tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
+
   } catch (err) {
     console.error('Error loading weapons:', err);
   }
 }
-
 
 // ========= Load Players ========= //
 async function loadPlayers() {
