@@ -75,4 +75,4 @@ Then log in with your MySQL credentials.
 ## 📜 License
 
 This project was created for educational use only.  
-© 2025 NickdaWizIsDev — . All rights reserved.
+© 2025 Nicolás Castro (NickdaWizIsDev) — Joaquín Aravena (Depanamipana). All rights reserved.
