@@ -24,26 +24,20 @@ A basic web application for managing weapons and players inspired by the *God of
 https://github.com/NickdaWizIsDev/GoW-Database
 ```
 
-### 2. 💾 Install dependencies
-
-```bash
-npm install
-```
-
-### 3. 🛢️ MySQL Setup
+### 2. 🛢️ MySQL Setup
 
 Make sure MySQL is running locally. You’ll be asked to enter your MySQL username and password through the login form at runtime.
 
 > The app connects to a database named `gow_weapons`. If it doesn’t exist, it will be created automatically.
 
-### 4. 🏃 Run the server
+### 3. 🏃 Run the server
 
 ```bash
 cd [your-project-folder]
 node server.js
 ```
 
-### 5. 🌐 Open in Browser
+### 4. 🌐 Open in Browser
 
 Navigate to:
 
@@ -81,4 +75,4 @@ Then log in with your MySQL credentials.
 ## 📜 License
 
 This project was created for educational use only.  
-© 2025 NickdaWizIsDev. All rights reserved.
+© 2025 NickdaWizIsDev — . All rights reserved.
