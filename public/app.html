@@ -43,66 +43,58 @@
     <!-- WEAPON CREATION -->
     <h2>Create Weapon</h2>
     <form id="weaponForm" class="card p-4 mb-5 shadow-sm">
-      <h4>Weapon Info</h4>
-      <div class="mb-3">
-        <label class="form-label">Name</label>
-        <input type="text" class="form-control" id="name_weapon" required>
-      </div>
-      <div class="row">
-        <div class="col">
-          <label class="form-label">Damage</label>
-          <input type="number" step="any" class="form-control" id="damage" required>
+        <h4>Weapon Info</h4>
+        <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input type="text" class="form-control" id="name_weapon" required>
         </div>
-        <div class="col">
-          <label class="form-label">Range</label>
-          <input type="number" step="any" class="form-control" id="range" required>
+        <div class="row">
+            <div class="col">
+                <label class="form-label">Damage</label>
+                <input type="number" step="any" class="form-control" id="damage" required>
+            </div>
+            <div class="col">
+                <label class="form-label">Range</label>
+                <input type="number" step="any" class="form-control" id="range" required>
+            </div>
+            <div class="col">
+                <label class="form-label">Cooldown</label>
+                <input type="number" step="any" class="form-control" id="cooldown" required>
+            </div>
         </div>
-        <div class="col">
-          <label class="form-label">Cooldown</label>
-          <input type="number" step="any" class="form-control" id="cooldown" required>
-        </div>
-      </div>
 
-      <h4 class="mt-4">Dependencies</h4>
-      <div class="mb-3">
-        <label class="form-label">Sprite Path</label>
-        <input type="text" class="form-control" id="sprite" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Material Path</label>
-        <input type="text" class="form-control" id="material" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Skill Name</label>
-        <input type="text" class="form-control" id="skill_name" required>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Skill Active</label>
-        <select class="form-control" id="skill_active">
-          <option value="true">True</option>
-          <option value="false">False</option>
+        <h4 class="mt-4">Dependencies</h4>
+        <div class="mb-3">
+            <label class="form-label">Sprite</label>
+            <input type="file" class="form-control" id="spriteFile" accept="image/*" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Material Path</label>
+            <select class="form-control" id="material"></select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Skill Name</label>
+            <select class="form-control" id="skill_name"></select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Skill Active</label>
+            <select class="form-control" id="skill_active">
+                <option value="true">True</option>
+                <option value="false">False</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Weapon Type</label>
+            <select class="form-control" id="type_weapon"></select>
+        </div>
+        <select class="form-control" id="level_select">
+            <option value="1">Level 1</option>
+            <option value="2">Level 2</option>
+            <option value="3">Level 3</option>
+            <option value="4">Level 4</option>
+            <option value="5">Level 5</option>
         </select>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Weapon Type</label>
-        <input type="text" class="form-control" id="type_weapon" required>
-      </div>
-
-      <h4 class="mt-4">Level Multipliers</h4>
-      <div class="row">
-        <div class="col">
-          <label class="form-label">Damage ×</label>
-          <input type="number" step="any" class="form-control" id="multiplier_damage" value="1" required>
-        </div>
-        <div class="col">
-          <label class="form-label">Range ×</label>
-          <input type="number" step="any" class="form-control" id="multiplier_range" value="1" required>
-        </div>
-        <div class="col">
-          <label class="form-label">Cooldown ×</label>
-          <input type="number" step="any" class="form-control" id="multiplier_cooldown" value="1" required>
-        </div>
-      </div>
+      
       <button type="submit" class="btn btn-warning mt-4">Create Weapon</button>
     </form>
 

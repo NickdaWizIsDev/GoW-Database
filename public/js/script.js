@@ -111,27 +111,22 @@ document.addEventListener('DOMContentLoaded', () => {
         damage: parseFloat($('damage').value),
         range: parseFloat($('range').value),
         cooldown: parseFloat($('cooldown').value),
-        sprite: $('sprite').value,
         material: $('material').value,
-        skill: {
-          skill_name: $('skill_name').value,
-          active: $('skill_active').value === 'true',
-        },
+        skill_name: $('skill_name').value,
+        skill_active: $('skill_active').value === 'true',
         type_weapon: $('type_weapon').value,
-        level: {
-          multiplier_damage: parseFloat($('multiplier_damage').value),
-          multiplier_range: parseFloat($('multiplier_range').value),
-          multiplier_cooldown: parseFloat($('multiplier_cooldown').value),
-        },
+        level: parseInt($('level_select').value),
       };
+
+      const formData = new FormData();
+      formData.append('spriteFile', $('spriteFile').files[0]);
+      formData.append('weapon', JSON.stringify(weapon));
 
       try {
         const res = await fetch('/create-weapon', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(weapon),
+          body: formData,
         });
-
         const result = await res.text();
         showResponseMessage(result, res.ok);
         if (res.ok) {
@@ -140,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } catch (err) {
         console.error(err);
-        showResponseMessage('Network or server error', false);
+        showResponseMessage('Upload failed', false);
       }
     });
   }
@@ -280,3 +275,24 @@ async function deletePlayer(user_name) {
     showResponseMessage('Network or server error', false);
   }
 }
+
+// ========= Populate Level Dropdown ========= //
+async function populateDropdown(endpoint, selectId, valueField = 'id', textField = 'name') {
+  const res = await fetch(`/${endpoint}`);
+  const data = await res.json();
+  const select = $(selectId);
+  select.innerHTML = '';
+  data.forEach(item => {
+    const opt = document.createElement('option');
+    opt.value = item[valueField];
+    opt.textContent = item[textField] || item.path_material || item.skill_name || item.name_type_weapon;
+    select.appendChild(opt);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  populateDropdown('materials', 'material', 'id_material', 'path_material');
+  populateDropdown('skills', 'skill_name', 'id_skill', 'skill_name');
+  populateDropdown('types', 'type_weapon', 'id_type_weapon', 'name_type_weapon');
+});
+

@@ -2,10 +2,12 @@ const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const path = require('path');
+const multer = require('multer');
+const upload = multer({ dest: path.join(__dirname, 'public/assets/sprites') });
 
 const app = express();
 const PORT = 3000;
-const path = require('path');
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -65,19 +67,42 @@ app.post('/create-player', async (req, res) => {
 });
 
 // Create weapon (with dependencies)
-app.post('/create-weapon', async (req, res) => {
-  const weapon = req.body;
+app.post('/create-weapon', upload.single('spriteFile'), async (req, res) => {
+  const weapon = JSON.parse(req.body.weapon);
+  const spriteFile = req.file;
+
+  if (!spriteFile) return res.status(400).send("No sprite uploaded.");
+
   const conn = getPool();
 
   try {
-    const [[{ insertId: id_material }]] = await conn.query('INSERT INTO Material (path_material) VALUES (?)', [weapon.material]);
-    const [[{ insertId: id_sprite }]] = await conn.query('INSERT INTO Sprite (path_sprite) VALUES (?)', [weapon.sprite]);
-    const [[{ insertId: id_skill }]] = await conn.query('INSERT INTO Skill (skill_name, active) VALUES (?, ?)', [weapon.skill.skill_name, weapon.skill.active]);
-    const [[{ insertId: id_type_weapon }]] = await conn.query('INSERT INTO Type_Weapon (name_type_weapon) VALUES (?)', [weapon.type_weapon]);
+    const [materialResult] = await conn.query('INSERT INTO Material (path_material) VALUES (?)', [weapon.material]);
+    const id_material = materialResult.insertId;
+
+    const [spriteResult] = await conn.query('INSERT INTO Sprite (path_sprite) VALUES (?)', [weapon.sprite]);
+    const id_sprite = spriteResult.insertId;
+
+    const [skillResult] = await conn.query('INSERT INTO Skill (skill_name, active) VALUES (?, ?)', [weapon.skill.skill_name, weapon.skill.active]);
+    const id_skill = skillResult.insertId;
+
+    const [typeResult] = await conn.query('INSERT INTO Type_Weapon (name_type_weapon) VALUES (?)', [weapon.type_weapon]);
+    const id_type_weapon = typeResult.insertId;
+
+    // Choose multiplier based on level 1–5
+    const levelMap = {
+      1: [1, 1, 1],
+      2: [1.2, 1.1, 0.95],
+      3: [1.5, 1.2, 0.9],
+      4: [1.8, 1.3, 0.85],
+      5: [2.0, 1.5, 0.8],
+    };
+    const [md, mr, mc] = levelMap[weapon.level];
+
     const [[{ insertId: id_level }]] = await conn.query(
       'INSERT INTO Level (multiplier_damage, multiplier_range, multiplier_cooldown) VALUES (?, ?, ?)',
-      [weapon.level.multiplier_damage, weapon.level.multiplier_range, weapon.level.multiplier_cooldown]
+      [md, mr, mc]
     );
+
     await conn.query(
       `INSERT INTO Weapon (name_weapon, damage, \`range\`, cooldown, id_sprite, id_material, id_skill, id_type_weapon, id_level)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -128,6 +153,18 @@ app.get('/weapons', async (req, res) => {
   } catch (err) {
     res.status(500).send("Error fetching weapons");
   }
+});
+app.get('/materials', async (req, res) => {
+  const [rows] = await getPool().query('SELECT * FROM Material');
+  res.json(rows);
+});
+app.get('/skills', async (req, res) => {
+  const [rows] = await getPool().query('SELECT * FROM Skill');
+  res.json(rows);
+});
+app.get('/types', async (req, res) => {
+  const [rows] = await getPool().query('SELECT * FROM Type_Weapon');
+  res.json(rows);
 });
 
 
