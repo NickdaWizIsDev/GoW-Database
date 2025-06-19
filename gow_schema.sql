@@ -1,8 +1,3 @@
-DROP DATABASE IF EXISTS gow_weapons;
-CREATE DATABASE gow_weapons;
-USE gow_weapons;
-
-
 CREATE TABLE `Player` (
         `id_player` INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
         `user_name` VARCHAR(255) NOT NULL,

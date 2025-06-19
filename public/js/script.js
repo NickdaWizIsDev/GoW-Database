@@ -30,13 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ========= Login Page Logic ========= //
   if (loginForm) {
-    loginForm.addEventListener('submit', async (e) => {
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const user = $('dbUser').value;
-      const password = $('dbPassword').value;
-      const box = $('loginStatus');
-
-      box.classList.remove('d-none', 'alert-success', 'alert-danger');
+      const user = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
 
       try {
         const res = await fetch('/connect-db', {
@@ -45,19 +42,12 @@ document.addEventListener('DOMContentLoaded', () => {
           body: JSON.stringify({ user, password })
         });
 
-        const result = await res.text();
-        box.textContent = result;
-        box.classList.add(res.ok ? 'alert-success' : 'alert-danger');
+        if (!res.ok) throw new Error(await res.text());
 
-        if (res.ok) {
-          setTimeout(() => {
-            window.location.href = 'app.html';
-          }, 1000);
-        }
+        localStorage.setItem('dbConnected', 'true');
+        window.location.href = 'app.html';
       } catch (err) {
-        console.error(err);
-        box.textContent = 'Connection error. Check console.';
-        box.classList.add('alert-danger');
+        alert('Login failed: ' + err.message);
       }
     });
   }
@@ -133,10 +123,10 @@ document.addEventListener('DOMContentLoaded', () => {
           e.target.reset();
           loadWeapons();
         }
-      } catch (err) {
-        console.error(err);
-        showResponseMessage('Upload failed', false);
-      }
+        } catch (err) {
+          console.error(err);
+          showResponseMessage('Upload failed', false);
+        }
     });
   }
 
@@ -295,4 +285,3 @@ document.addEventListener('DOMContentLoaded', () => {
   populateDropdown('skills', 'skill_name', 'id_skill', 'skill_name');
   populateDropdown('types', 'type_weapon', 'id_type_weapon', 'name_type_weapon');
 });
-
